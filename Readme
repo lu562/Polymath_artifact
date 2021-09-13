@@ -1,0 +1,61 @@
+1. Dataset
+
+The dataset we use is Nursary dataset from UCI (https://archive.ics.uci.edu/ml/datasets/nursery). 
+You can find a copy in model/dataset.
+
+2. Model training
+The decision tree models are trained using sk-learn python library. The training script is train.py. 
+The script does the following:
+	(1) train the decision tree model
+	(2) make the model a complete tree by adding dummy nodes.
+	(3) transfer the model into three files, which are the input to our MPC protocols.
+
+The output of the code are three files: 
+	(1) json_comparison.json: It stores all the comparison feature and threshold at each non-leaf node.
+	(2) json_poly.json: It stores the polynomials for each leaf node.
+	(3) json_value.json: It stores the result value of each leaf node.
+
+After installing sk-learn, you can run it with "python3 train.py".
+To change the depth of the tree, please change the parameter "max_depth" at line 67.
+
+3. Models ready to use
+
+We trained models with different depth in advance and the models are available in folder /model/i , where i is the tree depth.
+
+4. MPC framework
+
+We use HoneybadgerMPC(https://github.com/initc3/HoneyBadgerMPC) to implement our protocols. And below is the github repo for a custommized HoneybadgerMPC:
+
+https://github.com/lu562/HoneyBadgerMPC
+
+It is customized as follows:
+	(1) field size is changed to 160 bits.
+	(2) offline phase data (for 4PC and 7PC) are ready to use in /sharedata.
+	(3) the implementation of our protocols is located at /apps/tutorial
+		(a) decision_tree.py is the implementation of the decision tree evaluation solution.
+		(b) matrix.py is the implementation of the matrix powering protocol. You can change the size of the matrix by changing param "k" in line 861.
+
+HoneybadgerMPC is embeded into docker images, such that you don't need to worry about installing its pre-requests. You just need to:
+	(1) install docker and docker-compose.
+	(2) download the repo above, and run "docker-compose build" at root directory of the repo.
+	(3) copy the tree model (three json files) into /apps/tutorial/
+
+If you want to run local tests, you can do the following:
+	(1) enable the offline phase: uncomment the line 670-678 for decision_tree.py (line 886-895 for matrix.py).
+	(2) start an docker container : docker-compose run --rm honeybadgermpc bash
+	(3) inside docker container, run a local 4PC experiment for decision tree evaluation: scripts/launch-tmuxlocal.sh apps/tutorial/decision_tree.py conf/mpc/local
+
+Note: the computation is heavy for a single machine to run computation for 4PC. It is recommanded to try low-depth models (e.g. max_depth=8), or small matrices (e.g. k=10). Besides, the offline phase in current code is prepared for the largest models in our benchmark, so it takes extreme long time in local tests, to reduce it, you can try to reduce the numers in line 656-659. (e.g. for depth-8 model, you can set the numbers to be 4000, 20000, 1000, 400, and it takes less than 1 minute in my laptop to finish offline phase.) 
+
+If you want to run distributed tests:
+	(0) pull the customized repo into all the machines, install docker and docker-compose into all machines. The repo already contains the offline phase data so there is no need to run offline phase again.
+	(1) copy the tree model (three json files) into /apps/tutorial/ for all the machines.
+	(2) edit the configuration files for each machine, an example config file cound be found at /conf/real/, there are four config files, one for each machine. You should do the following changes for each config file.
+		(a) set N and t. (e.g. N=4, t=1 for a standard 4PC setting).
+		(b) You should set the my_id from 0 to n-1 for n parties, and put their IP addresses into "peers" section, and the order of IP addresses should be consistent with their "my_id". 
+	(3)In each machine, enter the root directory of the repo. And run the following command (assuming you pull the repo at ~/HoneyBadgerMPC):
+
+sudo docker run -p 7000:7000 -v ~/HoneyBadgerMPC/conf/real:/usr/src/HoneyBadgerMPC/config/ -v ~/HoneyBadgerMPC/sharedata:/usr/src/HoneyBadgerMPC/sharedata/ -v ~/HoneyBadgerMPC/apps:/usr/src/HoneyBadgerMPC/apps honeybadgermpc_honeybadgermpc:latest python -m apps.tutorial.decision_tree -d -f config/local.0.json
+
+	The first "-v" parameter mount the config files into docker container, in the example command, I mount the configs in the folder "~/HoneyBadgerMPC/conf/real", you may need to change this path to mount the config files you want. Besides, the last parameter "config/local.0.json" is for Party 0. for different machine, this parameter should change. (e.g. config/local.[i].json for Party [i])
+	(4) wait for the program to finish.
