@@ -1,7 +1,7 @@
 1. Dataset
 
 The dataset we use is Nursary dataset from UCI (https://archive.ics.uci.edu/ml/datasets/nursery). 
-You can find a copy in model/dataset.
+You can find a copy in artifact/models/dataset.
 
 2. Model training
 The decision tree models are trained using sk-learn python library. The training script is train.py. 
