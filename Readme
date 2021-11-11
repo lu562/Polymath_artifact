@@ -24,7 +24,7 @@ We trained models with different depth in advance and the models are available i
 
 4. MPC framework
 
-We use HoneybadgerMPC(https://github.com/initc3/HoneyBadgerMPC) to implement our protocols. And below is the github repo for a custommized HoneybadgerMPC:
+We use HoneybadgerMPC(https://github.com/initc3/HoneyBadgerMPC) to implement our protocols. And below is the github repo for a customized HoneybadgerMPC:
 
 https://github.com/lu562/HoneyBadgerMPC
 
@@ -35,7 +35,7 @@ It is customized as follows:
 		(a) decision_tree.py is the implementation of the decision tree evaluation solution.
 		(b) matrix.py is the implementation of the matrix powering protocol. You can change the size of the matrix by changing param "k" in line 861.
 
-HoneybadgerMPC is embeded into docker images, such that you don't need to worry about installing its pre-requests. You just need to:
+HoneybadgerMPC is embeded into docker images, such that you don't need to worry about installing its prerequests. You just need to:
 	(1) install docker and docker-compose.
 	(2) download the repo above, and run "docker-compose build" at root directory of the repo.
 	(3) copy the tree model (three json files) into /apps/tutorial/
