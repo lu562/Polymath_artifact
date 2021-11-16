@@ -63,14 +63,14 @@ sudo docker run -p 7000:7000 -v ~/HoneyBadgerMPC/conf/real:/usr/src/HoneyBadgerM
 5. Code Logic:
 
 5.1 Decision tree evaluation (decision_tree.py):
-The entry of the main function is run() (line 480). It first load files to get the decision tree model, then run the offline phase(Section 3.3 of the paper) to prepare offline data, then it runs the online phase (line 513 - 566).
+The entry of the main function is run() (line 480). It first loads files to get the decision tree model, then run the offline phase(Section 3.3 of the paper) to prepare offline data, then it runs the online phase (line 513 - 566).
 In online phase, we first do secure comparison (line 526), check batch_ltz_3() for more detail. (there are multiple secure comparison protocols implemented in this code, batch_ltz_3() is the one used in benchmark).
 Basically, batch_ltz_3() implements the secure comparison described in the paper (Improved Primitives for Secure Multiparty Integer Computation), the names of sub_functions follow the names in the paper description.
 Then, we do secure polynomial evaluation(line 559), see function batch_decision_tree_eval() for more detail. The implementation follows the section 3.2.2 of our paper.
 
 5.2 Matrix powering (matrix.py).
 
-the entry of the main function is simple_matrix() (line 806). To begin with, the offline data are generated (line 817-818), then the sample input matrix is generated (line 819-821), the main protocol is in matrix_power() (line 825). line 827 count the online time for our protocol. 
+the entry of the main function is simple_matrix() (line 806). To begin with, the offline data is generated (line 817-818), then the sample input matrix is generated (line 819-821), the main protocol is in matrix_power() (line 825). line 827 count the online time for our protocol. 
 The online phase function matrix_power() is consistent with Algorithm 7 of our paper.
 To compare our protocol with state of the art, line 830 executes the state of the art methods, and its online time is benchmarked.
 
